@@ -10,7 +10,7 @@ Ce projet est une **application web** dédiée à la gestion d’un cabinet dent
 
 ## **Technologies utilisées**
 - **Django** : Framework backend basé sur Python, respectant le modèle MVT (Modèle-Vue-Template).
-- **Bootstrap** : Framework CSS pour une interface utilisateur moderne et responsive.
+- **Bootstrap**
 
 ## **Compétences développées**
 - **Conception et modélisation orientées objet** avec UML.
