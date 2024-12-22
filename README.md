@@ -9,7 +9,7 @@ Ce projet est une **application web** dédiée à la gestion d’un cabinet dent
 - **Gestion des rendez-vous**
 
 ## **Technologies utilisées**
-- **Django** : Framework backend basé sur Python, respectant le modèle MVT (Modèle-Vue-Template).
+- **Django** 
 - **Bootstrap**
 
 ## **Compétences développées**
