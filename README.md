@@ -1,7 +1,7 @@
 
 # **Gestion Cabinet Dentaire**
 
-Ce projet est une **application web** dédiée à la gestion d’un cabinet dentaire. Réalisée individuellement, cette application a pour objectif de simplifier et d’optimiser la gestion des rendez-vous et des opérations administratives du cabinet.
+Ce projet est une **application web** dédiée à la gestion d’un cabinet dentaire. Cette application a pour objectif de simplifier et d’optimiser la gestion des rendez-vous et des opérations administratives du cabinet.
 
 ## **Fonctionnalités principales**
 - **Gestion des utilisateurs et de l’application**
