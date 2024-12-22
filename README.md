@@ -18,7 +18,7 @@ Ce projet est une **application web** dédiée à la gestion d’un cabinet dent
 - **Intégration d’un design responsive** avec Bootstrap.
 
 ## **Structure du projet**
-- **/docs** : Contient les schémas UML et la documentation technique.
+- **/docs** : Contient les schémas UML.
 - **/static** : Fichiers CSS, JavaScript, images et polices.
 - **/templates** : Fichiers HTML de l'application.
 
