@@ -26,13 +26,17 @@ class PostForm(forms.ModelForm):
     def __init__(self,*args,**kwargs):
         super(PostForm,self).__init__(*args,**kwargs)
         self.fields['date'].widget.attrs['class'] = 'datepicker'
-
+        
 class RdvForm(forms.ModelForm):
     
     class Meta:
         model = Rdv
         fields = ['date', 'num_rdv']
-        
+
+class LoginForm(forms.Form):
+    username = forms.CharField(max_length=150, label="Username")
+    password = forms.CharField(widget=forms.PasswordInput, label="Password")
+
 # class RdvCreateForm(forms.ModelForm):
 # 		class Meta:
 # 				model = Rdv

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .forms import SignUpForm,PostForm,RdvForm
+from .forms import SignUpForm,PostForm,RdvForm,LoginForm
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect
 from .models import Rdv
@@ -7,9 +7,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect,get_object_or_404
 from django.contrib.auth.models import Group
-from .forms import PostForm
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import messages
 
 # Create your views here.
+
 
 def home(request):
 	return render(request,'home.html')
@@ -27,26 +31,46 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
-from django.contrib.auth.views import LogoutView
 
+def login_view(request):
+    form = LoginForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.error(request, 'Invalid username or password')
+    
+    return render(request, 'login.html', {'form': form})
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
 
 def rdv_new(request):
-    form = PostForm (request.POST)
+    form = PostForm(request.POST or None)  # Si la requête est POST, charge les données
 
     if form.is_valid():
         rdv = form.save(commit=False)
-        rdv.id_patient=request.user.id
-        rdv.id_secretaire=1
-        rdv.num_rdv=1
-        ####WE NEED ID_PATIENT + ID_SEC + NUMERORDV IS STATIC PROBLEM
-        rdv.save()
+        rdv.id_patient = request.user  # Associer l'utilisateur connecté
+        rdv.id_secretaire = request.user  # Assigner l'utilisateur connecté comme secrétaire
+        rdv.num_rdv = CountNumeroRdv()  # Utilise la fonction CountNumeroRdv pour définir le numéro
+        rdv.save()  # Sauvegarder le rendez-vous
+
+        return redirect('rdv_list')  # Rediriger vers la liste des rendez-vous après la sauvegarde
+
     context = {
-    'form':form,
-                }
+        'form': form,  # Le formulaire est passé au template pour être affiché
+    }
 
-    return render(request,'panel.html',context)
+    return render(request, 'panel.html', context)  # Rendu du template si le formulaire n'est pas valide
 
-    
+
+ 
 def CountNumeroRdv():
         no = Rdv.objects.count()
         if no == None:

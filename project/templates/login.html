@@ -3,13 +3,20 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<center>
+<div style="text-align: center;">
   <h2>Login</h2>
   <br>
+  
+  {% if messages %}
+    {% for message in messages %}
+      <p style="color: red;">{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+  
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Login</button>
+    <button type="submit" class="btn btn-primary">Login</button>
   </form>
-  </center>
+</div>
 {% endblock %}
