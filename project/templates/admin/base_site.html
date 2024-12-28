@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+
+{% block branding %}
+{% load static %}
+    <a class="navbar-brand" href="">
+        <img src="{% static 'img/logo1.png' %}" alt="Logo" class="img-responsive" style="width: 140px;">
+    </a>
+{% endblock %}
+
+{% block nav-global %}
+   <nav>
+        <ul>
+            <li ><a href="/">Page d'accueil</a></li>
+            <li><a href="/logout">Déconnexion</a></li>
+            <li><a href="/#contact">Contact</a></li>
+            <li><a href="{% url 'admin:password_change' %}">Changer le mot de passe</a></li>
+        </ul>
+    </nav>
+{% endblock %}
+
+{% block userlinks %}
+    <!-- Personnalisation des liens utilisateur -->
+{% endblock %}
+
+{% block sidebar %}
+    <!-- Masquer la barre latérale -->
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+{% block footer %}
+    <footer>
+        <p> © Copyright MedDoc+ . All Rights Reserved </p>
+    </footer>
+{% endblock %}
+
+{% block extrahead %}
+<style>
+    /* CSS pour un footer dynamique */
+    #user-tools, .user-tools {
+            display: none !important;
+        }
+    
+
+    body {
+        background-color: #fdfcfc;
+    }
+
+    nav ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    nav li {
+        display: inline;
+        margin-right: 15px;
+    }
+
+    main {
+        flex: 1; /* Prend tout l'espace disponible pour pousser le footer en bas */
+    }
+
+    footer {
+        text-align: center;
+        background-color: rgba(28, 74, 90, 0.9); /* Couleur uniforme */
+        color: #fff;
+        padding: 15px 0; /* Espacement interne */
+        width: 100%;
+        margin-top: auto; /* Positionnement dynamique */
+    }
+
+    h1 {
+        color: rgba(28, 74, 90, 0.9);
+    }
+</style>
+
+{% endblock %}

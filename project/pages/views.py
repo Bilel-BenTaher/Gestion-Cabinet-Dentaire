@@ -33,18 +33,27 @@ def signup(request):
     return render(request, 'signup.html', {'form': form})
 
 def login_view(request):
-    form = LoginForm(request.POST or None)
+    form = LoginForm(request.POST or None)  # Instanciation du formulaire
     if request.method == 'POST':
         if form.is_valid():
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
-            user = authenticate(request, username=username, password=password)
+            user = authenticate(request, username=username, password=password)  # Authentification
+            
             if user is not None:
-                login(request, user)
-                return redirect('home')
+                login(request, user)  # Connexion de l'utilisateur
+                
+                # Redirection en fonction du rôle de l'utilisateur
+                if user.is_staff:  # Si l'utilisateur est un membre du staff
+                    return redirect('/admin/')  # Redirige vers l'administration Django
+                else:
+                    return redirect('home')  # Redirige vers la page d'accueil ou une autre page
+                
             else:
-                messages.error(request, 'Invalid username or password')
+                # Ajouter un message d'erreur si l'authentification échoue
+                messages.error(request, "Nom d'utilisateur ou mot de passe incorrect.")
     
+    # Rendu du formulaire de connexion
     return render(request, 'login.html', {'form': form})
 
 def logout_view(request):

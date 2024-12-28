@@ -9,9 +9,6 @@
 	 {% load static %}
 	 <link rel="icon" href="{% static 'img/logo1.png' %}" type="image/png"> <!-- Favicon ajouté -->
      <!-- Chargement des fichiers statiques via Django template tags -->
-
-	 {% block extra_styles %}{% endblock %}
-	 
      <script src="{% static 'js/jquery.min.js' %}"></script> <!-- Chargement de la bibliothèque jQuery. -->
      <script src="{% static 'js/moment-with-locales.js' %}"></script> <!-- Bibliothèque moment.js pour la gestion des dates et heures. -->
      <script src="{% static 'js/bootstrap.min.js' %}"></script> <!-- Chargement du script Bootstrap pour les composants interactifs. -->
@@ -48,26 +45,91 @@
 				     {% if user.username %}
 				     Bonjour,{{ user.username }}
 				     {% endif %}
+<!-- Menu de navigation -->
+<div class="collapse navbar-collapse navbar-right" id="myNavbar">
+    <ul class="nav navbar-nav">
+        <!-- Lien d'accueil -->
+        <li id="home-link" class="{% if request.path == '/' and not request.GET %}active{% endif %}">
+            <a href="/">Page d'accueil</a>
+        </li>
 
-				    <!-- Menu de navigation, qui se réduit en un menu "hamburger" sur les petits écrans -->
-				    <div class="collapse navbar-collapse navbar-right" id="myNavbar">
-				      <ul class="nav navbar-nav">
-				        <li class="active"><a href="/">Page d'accueil</a></li> <!-- Lien vers la page d'accueil -->
-                        <li><a href="#about">À propos</a></li> <!-- Lien vers la section à propos -->
-				        <li><a href="#contact">Contact</a></li> <!-- Lien vers la section contact -->
-				       {% if request.user.is_staff %} 
-				         <li><a href="/admin">Espace personnel</a></li> <!-- Lien vers l'espace admin si l'utilisateur est un administrateur -->
-				         <li ><a href="/logout">Déconnexion </a></li> <!-- Lien de déconnexion pour les administrateurs -->
-				       {% elif user.username %} 
-				       	 <li><a href="/panel">Rendez-vous</a></li> <!-- Lien vers la gestion des rendez-vous pour un utilisateur connecté -->
-				         <li><a href="/logout">Déconnexion</a></li> <!-- Lien de déconnexion pour un utilisateur connecté -->
-				       {% else %}
-				         <li><a href="/admin">Espace personnel</a></li> <!-- Lien vers l'espace personnel pour les utilisateurs non connectés -->
-				         <li><a href="/login">Espace Client</a></li> <!-- Lien vers la page de connexion -->
-				         <li><a href="/signup">S'inscrire</a></li> <!-- Lien vers la page d'inscription -->
-				        {% endif %}
-				      </ul>
-				    </div>
+        <!-- Lien vers la section "À propos" -->
+        <li id="about-link">
+            <a href="/#about" onclick="setActiveLink('about-link')">À propos</a>
+        </li>
+
+        <!-- Lien vers la section "Contact" -->
+        <li id="contact-link">
+            <a href="/#contact" onclick="setActiveLink('contact-link')">Contact</a>
+        </li>
+
+        <!-- Liens dynamiques -->
+        {% if request.user.is_staff %}
+            <li id="admin-link" class="{% if '/admin' in request.path %}active{% endif %}">
+                <a href="/admin">Espace personnel</a>
+            </li>
+            <li id="logout-link" class="{% if '/logout' in request.path %}active{% endif %}">
+                <a href="/logout">Déconnexion</a>
+            </li>
+        {% elif request.user.is_authenticated %}
+            <li id="panel-link" class="{% if '/panel' in request.path %}active{% endif %}">
+                <a href="/panel">Rendez-vous</a>
+            </li>
+            <li id="logout-link" class="{% if '/logout' in request.path %}active{% endif %}">
+                <a href="/logout">Déconnexion</a>
+            </li>
+        {% else %}
+            <li id="login-link" class="{% if '/login' in request.path %}active{% endif %}">
+                <a href="/login">Se connecter</a>
+            </li>
+            <li id="signup-link" class="{% if '/signup' in request.path %}active{% endif %}">
+                <a href="/signup">S'inscrire</a>
+            </li>
+        {% endif %}
+    </ul>
+</div>
+
+<script>
+    // Fonction pour gérer les classes actives lors d'un clic
+    function setActiveLink(activeLinkId) {
+        // Supprimer la classe active de tous les liens dynamiques et statiques
+        document.querySelectorAll('.nav li').forEach(li => li.classList.remove('active'));
+
+        // Ajouter la classe active au lien cliqué
+        document.getElementById(activeLinkId).classList.add('active');
+    }
+
+    // Gérer les classes actives lors du défilement (uniquement pour les sections "À propos" et "Contact")
+    window.addEventListener('scroll', function () {
+        const aboutSection = document.querySelector('#about');
+        const contactSection = document.querySelector('#contact');
+        const scrollPosition = window.scrollY;
+
+        // Ne pas modifier les liens dynamiques (comme espace client, staff, etc.)
+        if (document.querySelector('.nav li.active') && !['about-link', 'contact-link', 'home-link'].includes(document.querySelector('.nav li.active').id)) {
+            return;
+        }
+
+        // Supprimer les classes actives des liens de la barre de navigation
+        document.querySelectorAll('#home-link, #about-link, #contact-link').forEach(link => link.classList.remove('active'));
+
+        // Activer "À propos" si l'utilisateur est dans la section correspondante
+        if (aboutSection && scrollPosition >= aboutSection.offsetTop && scrollPosition < contactSection.offsetTop) {
+            document.getElementById('about-link').classList.add('active');
+        }
+        // Activer "Contact" si l'utilisateur est dans la section correspondante
+        else if (contactSection && scrollPosition >= contactSection.offsetTop) {
+            document.getElementById('contact-link').classList.add('active');
+        }
+        // Par défaut, activer "Accueil"
+        else {
+            document.getElementById('home-link').classList.add('active');
+        }
+    });
+</script>
+
+
+  
 				</div>
 			  </div>
 			</nav>
@@ -80,10 +142,10 @@
 	</section>
 	<!-- Fin du banner -->
 
-	<!-- Contenu dynamique -->
-	
-      {% block content %}
-      {% endblock %}
+	 <main class="main-content">
+        {% block content %}
+        {% endblock %}
+    </main>
    
 
 

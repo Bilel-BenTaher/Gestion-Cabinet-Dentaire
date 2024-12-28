@@ -9,13 +9,59 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import ModelForm
 
 class SignUpForm(UserCreationForm):
-	first_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-	last_name = forms.CharField(max_length=30, required=False, help_text='Optional.')
-	email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+    first_name = forms.CharField(
+        max_length=30, 
+        required=False, 
+        label='',  # Pas de label
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Prénom',
+            'style': 'width: 215px;'  # Augmente la largeur
+        })
+    )
+    last_name = forms.CharField(
+        max_length=30, 
+        required=False, 
+        label='',  # Pas de label
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Nom',
+            'style': 'width: 215px;'  # Augmente la largeur
+        })
+    )
+    email = forms.EmailField(
+        max_length=254, 
+        required=True, 
+        label='',  # Pas de label
+        widget=forms.EmailInput(attrs={
+            'placeholder': 'Adresse e-mail',
+            'style': 'width: 215px;'  # Augmente la largeur
+        })
+    )
+    username = forms.CharField(
+        max_length=150,
+        label='',  # Pas de label
+        widget=forms.TextInput(attrs={
+            'placeholder': "Nom d'utilisateur",
+            'style': 'width: 215px;'  # Augmente la largeur
+        })
+    )
+    password1 = forms.CharField(
+        label='',  # Pas de label
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Mot de passe',
+            'style': 'width: 215px;'  # Augmente la largeur
+        })
+    )
+    password2 = forms.CharField(
+        label='',  # Pas de label
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Confirmer le mot de passe',
+            'style': 'width: 215px;'  # Augmente la largeur
+        })
+    )
 
-	class Meta:
-		model = User
-		fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', )
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
 
 
 class PostForm(forms.ModelForm):
@@ -34,8 +80,16 @@ class RdvForm(forms.ModelForm):
         fields = ['date', 'num_rdv']
 
 class LoginForm(forms.Form):
-    username = forms.CharField(max_length=150, label="Username")
-    password = forms.CharField(widget=forms.PasswordInput, label="Password")
+    username = forms.CharField(
+        max_length=150,
+        label='',  # Ne pas afficher de label
+        widget=forms.TextInput(attrs={'placeholder': "Nom d'utilisateur"})
+    )
+    password = forms.CharField(
+        label='',  # Ne pas afficher de label
+        widget=forms.PasswordInput(attrs={'placeholder': "Mot de passe"})
+    )
+
 
 # class RdvCreateForm(forms.ModelForm):
 # 		class Meta:

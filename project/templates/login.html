@@ -1,22 +1,23 @@
 {% extends 'base.html' %}
 
-{% block title %}Login{% endblock %}
-
 {% block content %}
-<div style="text-align: center;">
-  <h2>Login</h2>
-  <br>
-  
-  {% if messages %}
-    {% for message in messages %}
-      <p style="color: red;">{{ message }}</p>
-    {% endfor %}
-  {% endif %}
-  
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Login</button>
-  </form>
+<div class="d-flex flex-column" style="min-height: 30vh;">
+    <div class="flex-grow-1">
+        <center>
+            <h2>Se connecter</h2><br>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <p style="color: red;">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Se connecter</button>
+            </form>
+        </center>
+    </div>
 </div>
 {% endblock %}

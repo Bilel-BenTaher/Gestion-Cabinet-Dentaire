@@ -1,8 +1,19 @@
 {% extends 'base.html' %} <!-- Extends base.html pour l'héritage de la structure HTML de base -->
 {% block banner_content %}
+<style>
+	.navbar-default {
+		background-color: transparent;
+		border: 0px;
+	}
+	.top-nav-collapse {
+    padding: 0; 
+    background: rgba(28,74,90, 0.9);
+}
+</style>
+<!-- Le reste de votre contenu pour la page d'accueil -->
 {% load static %} <!-- Chargement des fichiers statiques, pour accéder aux images et autres ressources -->
-<section id="banner" class="banner"> <!-- Section principale du banner de la page -->
-    <div class="bg-color"> <!-- Section avec fond coloré -->
+<section id="home" > <!-- Section principale du banner de la page -->
+    <div class="bg-color" > <!-- Section avec fond coloré -->
         <!-- La section de navigation est déjà définie dans base.html -->
         <div class="container">
             <div class="row">
@@ -23,18 +34,16 @@
         </div>
     </div>
 </section>
-{% endblock %}
+
 <!-- Fin de la section du banner -->
 
-{% block content %}
-{% load static %} <!-- Chargement des fichiers statiques, pour accéder aux images et autres ressources -->
 <!-- Section "À propos du Médecin" -->
 <section id="about" class="section-padding" style="display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; background: linear-gradient(135deg, #f2f2f2, #e6e6e6); padding: 50px 0;">
     <div class="container">
         <div class="row">
             <div class="col-md-12">
                 <!-- Titre de la section avec une ligne en dessous -->
-                <h2 class="ser-title" style="display: inline-block; margin-bottom: 10px;">À propos du Médecin</h2>
+                <h2 class="ser-title" style="display: inline-block; margin-bottom: 10px; margin-top: 20px;">À propos du Médecin</h2>
                 <hr class="botm-line" style="margin: 0 auto; width: calc(100% - 20px);"> <!-- Ligne de séparation ajustée -->
             </div>			
         </div>
@@ -75,7 +84,7 @@
         <div class="row">
             <div class="col-md-12" style="text-align: center;">
                 <!-- Titre de la section "Contact" avec ligne en dessous -->
-                <h2 class="ser-title" style="display: inline-block; margin-bottom: 10px;">Prenez contact avec notre équipe technique</h2>
+                <h2 class="ser-title" style="display: inline-block; margin-bottom: 10px; margin-top: 20px;">Prenez contact avec notre équipe technique</h2>
                 <hr class="botm-line" style="margin: 0 auto; width: calc(100% - 20px);"> <!-- Ligne centrée et ajustée -->
             </div>
             <div class="col-md-4 col-sm-4">
@@ -123,5 +132,4 @@
     </div>
 </section>
 <!-- Fin de la section "Contact" -->
-
 {% endblock %}
