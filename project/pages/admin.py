@@ -31,7 +31,6 @@ from django.contrib.auth.models import User
 
 # class UtilisateurUserAdmin(admin.ModelAdmin):
 # 	form = UtilisateurForm
-
 # admin.site.register(Utilisateur,UtilisateurUserAdmin)
 admin.site.register(CabinetDentaire)
 admin.site.register(FichePatient)
