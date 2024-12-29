@@ -71,13 +71,13 @@
             <li id="logout-link" class="{% if '/logout' in request.path %}active{% endif %}">
                 <a href="/logout">Déconnexion</a>
             </li>
-        {% elif request.user.is_authenticated %}
+            {% elif request.user.is_authenticated %}
             <li id="panel-link" class="{% if '/panel' in request.path %}active{% endif %}">
-                <a href="/panel">Rendez-vous</a>
+                <a href="/panel">Gérer le rendez-vous</a>
             </li>
             <li id="logout-link" class="{% if '/logout' in request.path %}active{% endif %}">
                 <a href="/logout">Déconnexion</a>
-            </li>
+            </li>        
         {% else %}
             <li id="login-link" class="{% if '/login' in request.path %}active{% endif %}">
                 <a href="/login">Se connecter</a>

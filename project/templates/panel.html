@@ -1,15 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %}Création de Rendez-vous{% endblock %}
-
 {% block content %}
 <center>
-  <h2>Créer un Rendez-vous</h2>
+  <h3>Veuillez choisir une date de rendez-vous</h3>
   <br>
   <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Créer Rendez-vous</button>
+    <button type="submit" class="btn btn-primary">Ajouter </button>
   </form>
 </center>
 {% endblock %}

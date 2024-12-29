@@ -26,8 +26,10 @@
                         <!-- Titre principal et phrase accrocheuse -->
                         <h1 class="white">Votre santé, notre priorité : <br> gérez vos rendez-vous en toute simplicité !</h1>
                         <!-- Bouton d'inscription qui redirige vers la page d'inscription -->
-                        <a href="/signup" class="btn btn-appoint">S'inscrire</a>
-                        <p class="white">Inscrivez-vous en quelques clics et profitez d'une gestion rapide et facile de vos rendez-vous médicaux !</p>
+                        {% if not request.user.is_authenticated %}
+                            <a href="/signup" class="btn btn-appoint">S'inscrire</a>
+                            <p class="white">Inscrivez-vous en quelques clics et profitez d'une gestion rapide et facile de vos rendez-vous médicaux !</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>

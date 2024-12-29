@@ -7,6 +7,7 @@ from django.contrib.admin import widgets
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import ModelForm
+from django.forms.widgets import DateInput
 
 class SignUpForm(UserCreationForm):
     first_name = forms.CharField(
@@ -65,14 +66,19 @@ class SignUpForm(UserCreationForm):
 
 
 class PostForm(forms.ModelForm):
-
     class Meta:
         model = Rdv
-        fields = ['date',]
-    def __init__(self,*args,**kwargs):
-        super(PostForm,self).__init__(*args,**kwargs)
-        self.fields['date'].widget.attrs['class'] = 'datepicker'
-        
+        fields = ['date']
+
+    def __init__(self, *args, **kwargs):
+        super(PostForm, self).__init__(*args, **kwargs)
+        # Applique un widget DateInput avec un format spécifique et ajoute la classe CSS 'datepicker'
+        self.fields['date'].widget = DateInput(attrs={
+            'class': 'datepicker',  # Classe CSS pour le calendrier
+            'type': 'date',  # Utilise le type HTML5 'date' pour le champ
+            'placeholder': 'Choisir une date',  # Texte d'aide pour l'utilisateur
+        })
+
 class RdvForm(forms.ModelForm):
     
     class Meta:

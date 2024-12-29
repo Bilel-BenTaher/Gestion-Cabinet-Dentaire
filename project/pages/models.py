@@ -50,15 +50,15 @@ class CabinetDentaire (models.Model):
 		def __str__ (self):
 		 return str(self.intitule)
 
-class Rdv (models.Model):
-	id = models.AutoField(primary_key=True)
-	id_secretaire = models.ForeignKey(User,related_name="rdv_sec",on_delete=models.CASCADE,default="3", )
-	id_patient = models.ForeignKey(User,related_name="rdv_patient",on_delete=models.CASCADE,default="4" )
-	date = models.DateTimeField()
+class Rdv(models.Model):
+    id = models.AutoField(primary_key=True)
+    id_secretaire = models.ForeignKey(User, related_name="rdv_sec", on_delete=models.CASCADE, default="3")
+    id_patient = models.ForeignKey(User, related_name="rdv_patient", on_delete=models.CASCADE, default="4")
+    date = models.DateTimeField()
+    num_rdv = models.IntegerField(default=1)  # Assurez-vous que ce soit un entier, pas une chaîne.
 
-	num_rdv = models.IntegerField(default="1")
-	def __str__ (self):
-		return str(self.id_patient.username)
+    def __str__(self):
+        return str(self.id_patient.username)
 
 class FichePatient (models.Model):
 	id_fiche = models.AutoField(primary_key=True)

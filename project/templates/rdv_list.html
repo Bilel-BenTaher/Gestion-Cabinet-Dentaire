@@ -1,36 +1,35 @@
 {% extends 'base.html' %}
-{% block title %}Panel{% endblock %}
 
 {% block content %}
-
 <center>
-
-<h1>Rdv User</h1>
-<table class="table">
-<tr>
-<th>Rdv Date </th>
-<th>Rdv Numero </th>
-<th> Edit </th>
-<th>Delete </th>
-</tr>
-
-    {% for Rdv in object_list %}
-    <tr>
-    <td>{{ Rdv.date }}  </td><td> ({{ Rdv.num_rdv }} ) </td>
-
-    <td>
-
-    <a href="{% url 'rdv_edit' Rdv.id %}" class="btn btn-primary" >edit</a>
-
-
-    </td>
-    <td><a href="{% url 'rdv_delete' Rdv.id %}" class="btn btn-danger" >delete</a></td>
-    </tr>
-    {% endfor %}
-</table>
-
-<a href="{% url 'rdv_new' %}" class="btn btn-info" >New</a>
-
+    {% if no_rdv_message %}
+    <h3>Bonjour,</h3>
+    <p>{{ no_rdv_message }}</p>
+    {% if show_button %}
+        <a href="{% url 'rdv_new'%}" class="btn btn-primary">Ajouter un rendez-vous</a>
+    {% endif %}
+    {% else %}
+    <h1>Votre rendez-vous</h1>
+    <table class="table">
+        <tr>
+            <th>Date et Heure du Rdv</th>
+            <th>Numéro du Rdv</th>
+            <th>Supprimer</th>
+        </tr>
+        {% for rdv in object_list %}
+        <tr>
+            <td>{{ rdv.date }}</td>
+            <td>Vous êtes à la position {{ rdv.num_rdv }} dans la journée.</td>
+            
+            <td>
+                <a href="{% url 'rdv_delete' rdv.id %}" class="btn btn-danger">Supprimer</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <p style="color: red; margin-top: 15px;">
+        Si vous souhaitez modifier ou ajouter un rendez-vous, supprimez le rendez-vous existant et suivez les instructions pour en créer un nouveau.
+    </p>
+    {% endif %}
 </center>
-
 {% endblock %}
