@@ -19,18 +19,37 @@ from django.db.models import Max
 def home(request):
 	return render(request,'home.html')
 
+from .models import FichePatient
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST or None)
         if form.is_valid():
-            form.save()
+            # Sauvegarde l'utilisateur
+            user = form.save()
+
+            # Création de la fiche de patient liée à l'utilisateur
+            FichePatient.objects.create(
+                id_patient=user,
+                nom=user.last_name,
+                prenom=user.first_name,
+                age=form.cleaned_data['age'],
+                sexe=form.cleaned_data['gender'],
+                tel=form.cleaned_data['phone'],
+                motif_consultation='',  # Vous pouvez définir un motif par défaut si nécessaire
+            )
+
+            # Authentifie l'utilisateur après l'inscription
             username = form.cleaned_data.get('username')
             raw_password = form.cleaned_data.get('password1')
             user = authenticate(username=username, password=raw_password)
             login(request, user)
+
+            # Redirection après l'inscription
             return redirect('home')
     else:
         form = SignUpForm()
+
     return render(request, 'signup.html', {'form': form})
 
 def login_view(request):
@@ -61,53 +80,34 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
-def CountNumeroRdvForDay(rdv_date, patient=None):
+from datetime import datetime
+
+def CountNumeroRdvForDay(rdv_date):
     """
-    Calcule le numéro du prochain rendez-vous pour une date spécifique et la position du patient dans la liste de cette journée.
+    Calcule le numéro du prochain rendez-vous pour une date spécifique.
     """
-    # Filtrer les rendez-vous existants pour la date spécifique
-    rdvs_on_date = Rdv.objects.filter(date__date=rdv_date).order_by('date')
+    rdvs_on_date = Rdv.objects.filter(date=rdv_date).order_by('num_rdv')
+    last_rdv = rdvs_on_date.aggregate(Max('num_rdv'))['num_rdv__max']
 
-    # Trouver le dernier numéro de rendez-vous pour cette date
-    last_rdv = rdvs_on_date.aggregate(Max('num_rdv'))
+    # Retourner le prochain numéro de rendez-vous (ou 1 si aucun rdv n'existe)
+    return (last_rdv or 0) + 1
 
-    # Si aucun rendez-vous n'existe pour cette date, commencer à 1
-    if last_rdv['num_rdv__max'] is None:
-        next_rdv_num = 1
-    else:
-        # Sinon, attribuer le prochain numéro (max + 1)
-        next_rdv_num = last_rdv['num_rdv__max'] + 1
 
-    # Trouver la position du patient dans la liste des rendez-vous pour cette date
-    patient_position = None
-    if patient:
-        for i, rdv in enumerate(rdvs_on_date):
-            if rdv.id_patient == patient:
-                patient_position = i + 1  # Position du patient (commence à 1)
-                break
-
-    # Retourner le numéro du prochain rendez-vous et la position du patient
-    return next_rdv_num, patient_position
-    
 def rdv_new(request):
     form = PostForm(request.POST or None)
 
     if form.is_valid():
         rdv = form.save(commit=False)
-        rdv.id_patient = request.user  # Associer l'utilisateur connecté comme patient
-        rdv.id_secretaire = request.user  # Assigner l'utilisateur connecté comme secrétaire
+        rdv.id_patient = request.user  # Associer l'utilisateur connecté
+        rdv.date = form.cleaned_data['date']
 
-        # Appeler la fonction pour obtenir le prochain numéro de rendez-vous
-        next_rdv_num, patient_position = CountNumeroRdvForDay(rdv_date=rdv.date, patient=request.user)
-
-        # Attribuer le numéro de rendez-vous calculé
-        rdv.num_rdv = next_rdv_num
-        rdv.save()  # Sauvegarder le rendez-vous
-
-        # Rediriger vers la page de liste de rendez-vous (cela rafraîchira la liste)
-        return redirect('rdv_list')  # Assurez-vous d'utiliser l'URL correcte
+        # Calculer le numéro et sauvegarder
+        rdv.num_rdv = CountNumeroRdvForDay(rdv.date)
+        rdv.save()  # `save` va automatiquement calculer l'heure via `calculate_time`
+        return redirect('rdv_list')
 
     return render(request, 'panel.html', {'form': form})
+
 
 @login_required
 def rdv_list(request):

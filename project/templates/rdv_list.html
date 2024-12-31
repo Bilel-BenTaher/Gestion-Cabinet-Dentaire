@@ -18,9 +18,8 @@
         </tr>
         {% for rdv in object_list %}
         <tr>
-            <td>{{ rdv.date }}</td>
+            <td>{{ rdv.date }} à {{ rdv.time }}</td>
             <td>Vous êtes à la position {{ rdv.num_rdv }} dans la journée.</td>
-            
             <td>
                 <a href="{% url 'rdv_delete' rdv.id %}" class="btn btn-danger">Supprimer</a>
             </td>

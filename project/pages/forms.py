@@ -13,56 +13,76 @@ class SignUpForm(UserCreationForm):
     first_name = forms.CharField(
         max_length=30, 
         required=False, 
-        label='',  # Pas de label
+        label='', 
         widget=forms.TextInput(attrs={
             'placeholder': 'Prénom',
-            'style': 'width: 215px;'  # Augmente la largeur
+            'style': 'width: 215px; color: black;',
         })
     )
     last_name = forms.CharField(
         max_length=30, 
         required=False, 
-        label='',  # Pas de label
+        label='', 
         widget=forms.TextInput(attrs={
             'placeholder': 'Nom',
-            'style': 'width: 215px;'  # Augmente la largeur
-        })
-    )
-    email = forms.EmailField(
-        max_length=254, 
-        required=True, 
-        label='',  # Pas de label
-        widget=forms.EmailInput(attrs={
-            'placeholder': 'Adresse e-mail',
-            'style': 'width: 215px;'  # Augmente la largeur
+            'style': 'width: 215px; color: black;',
         })
     )
     username = forms.CharField(
         max_length=150,
-        label='',  # Pas de label
+        label='', 
         widget=forms.TextInput(attrs={
             'placeholder': "Nom d'utilisateur",
-            'style': 'width: 215px;'  # Augmente la largeur
+            'style': 'width: 215px; color: black;',
+        })
+    )
+    age = forms.IntegerField(
+        required=True, 
+        label='', 
+        widget=forms.NumberInput(attrs={
+            'placeholder': 'Âge',
+            'style': 'width: 215px; color: black;',
+        })
+    )
+    gender = forms.ChoiceField(
+    required=True, 
+    label='', 
+    choices=[('', 'Sélectionnez votre genre'), ('M', 'Homme'), ('F', 'Femme')],
+    widget=forms.Select(attrs={
+        'style': 'width: 215px; color: gray;',  # Placeholder par défaut en gris
+        'class': 'gender-select',  # Classe pour plus de contrôle
+        'onchange': "this.style.color = this.value === '' ? 'gray' : 'black';",  # Couleur noire si une option est sélectionnée
+    })
+)
+
+    phone = forms.CharField(
+        max_length=15, 
+        required=True, 
+        label='', 
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Numéro de téléphone',
+            'style': 'width: 215px; color: black;',
         })
     )
     password1 = forms.CharField(
-        label='',  # Pas de label
+        label='', 
         widget=forms.PasswordInput(attrs={
             'placeholder': 'Mot de passe',
-            'style': 'width: 215px;'  # Augmente la largeur
+            'style': 'width: 215px; color: black;',
         })
     )
     password2 = forms.CharField(
-        label='',  # Pas de label
+        label='', 
         widget=forms.PasswordInput(attrs={
             'placeholder': 'Confirmer le mot de passe',
-            'style': 'width: 215px;'  # Augmente la largeur
+            'style': 'width: 215px; color: black;',
         })
     )
-
+    
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'age', 'gender', 'phone', 'password1', 'password2')
+
 
 
 class PostForm(forms.ModelForm):
@@ -89,11 +109,11 @@ class LoginForm(forms.Form):
     username = forms.CharField(
         max_length=150,
         label='',  # Ne pas afficher de label
-        widget=forms.TextInput(attrs={'placeholder': "Nom d'utilisateur"})
+        widget=forms.TextInput(attrs={'placeholder': "Nom d'utilisateur",'style': 'width: 215px; color: black;',})
     )
     password = forms.CharField(
         label='',  # Ne pas afficher de label
-        widget=forms.PasswordInput(attrs={'placeholder': "Mot de passe"})
+        widget=forms.PasswordInput(attrs={'placeholder': "Mot de passe",'style': 'width: 215px; color: black;',})
     )
 
 
