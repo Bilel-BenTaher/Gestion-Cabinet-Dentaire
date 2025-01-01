@@ -127,8 +127,7 @@ def create_consultation(sender, instance, created, **kwargs):
             Consultation.objects.create(
                 id_patient=instance.id_patient,
                 # Remplir d'autres champs nécessaires, par exemple contenue ou traitement
-                contenue="Consultation ",
-                traitement="Aucun traitement",
+                Observation="Consultation ",
                 date_consultation=now().date(),  # Utiliser la date actuelle
             )
             # Rendre la fiche invalide après la création de la consultation
@@ -136,44 +135,50 @@ def create_consultation(sender, instance, created, **kwargs):
             instance.save()
 
 
-	
+from django.utils import timezone  # Ajoutez cet import en haut de votre fichier
+
 class Consultation(models.Model):
     id_consultation = models.AutoField(primary_key=True)
     id_patient = models.ForeignKey(User, related_name="cons_patient", on_delete=models.CASCADE)
     fiche_patient = models.ForeignKey('FichePatient', related_name="consultations", on_delete=models.CASCADE, null=True, blank=True)
-    id_facture = models.ForeignKey('Facture', related_name="cons_fact", on_delete=models.CASCADE, null=True, blank=True)
-    contenue = models.TextField(max_length=254)
-    traitement = models.TextField(max_length=254)
+    facture = models.ForeignKey('Facture', related_name="cons_fact", on_delete=models.CASCADE, null=True, blank=True)
+    Observation = models.TextField(max_length=254)
+    Traitement = models.ForeignKey('Ordonnance', related_name="cons_ord", on_delete=models.CASCADE, null=True, blank=True)
     date_consultation = models.DateField()
-    valide = models.BooleanField(default=False)  # Nouveau champ
+    valide = models.BooleanField(default=False)
 
     def __str__(self):
         return f"- Patient: {self.id_patient.username}"
 
     def save(self, *args, **kwargs):
-        # Automatically assign fiche_patient if not set
+        # Assigner automatiquement fiche_patient si non défini
         if not self.fiche_patient:
             try:
                 self.fiche_patient = FichePatient.objects.get(id_patient=self.id_patient)
             except FichePatient.DoesNotExist:
-                pass  # Optionally handle if no FichePatient exists
-        
-        # Check if a Facture exists for the patient; if not, create one
-        if not self.id_facture:
+                pass  # Gérer l'absence de FichePatient si nécessaire
+
+        # Vérifier si une facture existe pour le patient ; sinon, la créer
+        if not self.facture:
             try:
-                facture = Facture.objects.get(id_patient=self.id_patient)
-                print(f"Facture already exists for patient {self.id_patient.username}")
-                self.id_facture = facture  # Assign the existing facture to this consultation
+                self.facture = Facture.objects.get(id_patient=self.id_patient)
             except Facture.DoesNotExist:
-                # If no Facture exists, create a new one
-                facture = Facture.objects.create(id_patient=self.id_patient, montant=0)  # Assuming Facture has a 'montant' field
-                print(f"Facture created for patient {self.id_patient.username}")
-                self.id_facture = facture  # Assign the newly created facture to this consultation
+                self.facture = Facture.objects.create(id_patient=self.id_patient, prix=0)  # Exemple : montant initial à 0
+
+        # Vérifier si une ordonnance existe pour le patient ; sinon, la créer
+        if not self.Traitement:
+            try:
+                self.Traitement = Ordonnance.objects.get(id_patient=self.id_patient)
+            except Ordonnance.DoesNotExist:
+                self.Traitement = Ordonnance.objects.create(
+                    id_patient=self.id_patient,
+                    date=now().date(),
+                    medicament="Aucun traitement prescrit"  # Valeur par défaut pour le champ 'medicament'
+                )
 
         super().save(*args, **kwargs)
 
 
-    
 class Facture (models.Model):
 	id_facture = models.AutoField(primary_key=True)
 	id_patient = models.ForeignKey(User, related_name="factures", on_delete=models.CASCADE, null=True)
@@ -184,9 +189,16 @@ class Facture (models.Model):
 
 class Ordonnance (models.Model):
 	id_ordonnance = models.AutoField(primary_key=True)
-	#date = models.DateTimeField(auto_now_add=True, blank=True)
+	id_patient = models.ForeignKey(User, related_name="Ordonnance", on_delete=models.CASCADE, null=True)
 	date = models.DateTimeField()
 	medicament = models.CharField(max_length=254)
-	observation = models.CharField(max_length=254)
 	def __str__ (self):
-		return str(self.date)
+		return f"Ordonnance du Patient {self.id_patient.username}"
+
+class certificat (models.Model):
+	id_ordonnance = models.AutoField(primary_key=True)
+	id_patient = models.ForeignKey(User, related_name="certificat", on_delete=models.CASCADE, null=True)
+	date = models.DateTimeField()
+	medicament = models.CharField(max_length=254)
+	def __str__ (self):
+		return f"Ordonnance du Patient {self.id_patient.username}"
