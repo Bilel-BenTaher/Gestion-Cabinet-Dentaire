@@ -191,14 +191,16 @@ class Ordonnance (models.Model):
 	id_ordonnance = models.AutoField(primary_key=True)
 	id_patient = models.ForeignKey(User, related_name="Ordonnance", on_delete=models.CASCADE, null=True)
 	date = models.DateTimeField()
-	medicament = models.CharField(max_length=254)
+	medicament = models.TextField()
 	def __str__ (self):
 		return f"Ordonnance du Patient {self.id_patient.username}"
 
-class certificat (models.Model):
-	id_ordonnance = models.AutoField(primary_key=True)
-	id_patient = models.ForeignKey(User, related_name="certificat", on_delete=models.CASCADE, null=True)
-	date = models.DateTimeField()
-	medicament = models.CharField(max_length=254)
-	def __str__ (self):
-		return f"Ordonnance du Patient {self.id_patient.username}"
+class Certificat (models.Model):
+    id_certificat = models.AutoField(primary_key=True)
+    id_patient = models.ForeignKey(User, related_name="certificat", on_delete=models.CASCADE, null=True)
+    date = models.DateField()
+    contenu = models.TextField()
+
+    def __str__(self):
+        patient_name = self.id_patient.username if self.id_patient else "Inconnu"
+        return f"Certificat du Patient"

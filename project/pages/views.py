@@ -175,7 +175,7 @@ from reportlab.pdfbase import pdfmetrics
 import arabic_reshaper
 from bidi.algorithm import get_display
 from django.http import HttpResponse
-from .models import Ordonnance  # Assurez-vous d'importer correctement votre modèle Ordonnance
+from .models import Ordonnance # Assurez-vous d'importer correctement votre modèle Ordonnance
 
 def generate_ordonnance_pdf(request, ordonnance_id):
     # Récupérer l'ordonnance et les données associées
@@ -217,7 +217,7 @@ def generate_ordonnance_pdf(request, ordonnance_id):
     c.setFont("Helvetica-Bold", 14)  # Garder "Foulen BEN FALTEN" en gras
     c.drawString(30, height - 40, "Foulen BEN FALTEN")  # "Foulen BEN FALTEN" en gras
     c.setFont("Helvetica", 12)  # Revenir à la police normale
-    c.drawString(50, height - 60, "Médecin Dentiste")  # "Médecin Dentiste" en texte normal
+    c.drawString(50, height - 60, "Médecin (Spécialité)")  # "Médecin Dentiste" en texte normal
 
     # Définir la police pour le texte en arabe (Amiri)
     c.setFont("Amiri", 12)
@@ -233,9 +233,9 @@ def generate_ordonnance_pdf(request, ordonnance_id):
     bidi_text2 = get_display(reshaped_text2)  # Applique le processus bidi pour afficher de droite à gauche
     c.drawString(width - 90, height - 40, bidi_text2)  # Affiche "فلان بن فلتان"
     c.setFont("Amiri", 12)  # Toujours utiliser la police normale
-    reshaped_text3 = arabic_reshaper.reshape("طبيب أسنان")  # Reshape "طبيب أسنان"
+    reshaped_text3 = arabic_reshaper.reshape("طبيب(التخصص)")  # Reshape "طبيب أسنان"
     bidi_text3 = get_display(reshaped_text3)  # Applique le processus bidi pour afficher de droite à gauche
-    c.drawString(width - 90, height - 60, bidi_text3)  # Affiche "طبيب أسنان"
+    c.drawString(width - 105, height - 60, bidi_text3)  # Affiche "طبيب أسنان"
 
     # Ligne de séparation sous le nom du médecin
     c.setStrokeColor(colors.black)
@@ -306,6 +306,120 @@ def generate_ordonnance_pdf(request, ordonnance_id):
     c.save()
 
     return response
+
+
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from .models import Certificat
+import os
+from django.conf import settings
+import arabic_reshaper
+from bidi.algorithm import get_display
+from reportlab.lib.utils import simpleSplit
+
+def generate_certificat_pdf(request, certificat_id):
+    # Récupérer le certificat
+    certificat = get_object_or_404(Certificat, id_certificat=certificat_id)
+    patient = certificat.id_patient
+    contenu = certificat.contenu
+
+    # Informations fixes
+    doctor_name_fr = "Docteur Foulen BEN FALTEN\nMédecin Dentiste"
+    doctor_name_ar = "دكتور فلان بن فلتان\nطبيب (التخصص)"
+    cabinet_adresse_fr = "123 Rue Exemple, Ville, Code Postal, Pays"
+    cabinet_adresse_ar = "شارع المثال 123، المدينة، الرمز البريدي، البلد"
+    email = "exemple@email.com"
+    gsm = "+212 6 12 34 56 78"
+
+    # Chemin vers la police arabe
+    font_path = os.path.join(settings.BASE_DIR, 'static', 'fonts', 'Amiri-Regular.ttf')
+    if os.path.exists(font_path):
+        pdfmetrics.registerFont(TTFont('Amiri', font_path))
+    else:
+        return HttpResponse("Police arabe introuvable", status=500)
+
+    # Réponse PDF
+    response = HttpResponse(content_type='application/pdf')
+    c = canvas.Canvas(response, pagesize=letter)
+    width, height = letter
+
+    # Haut de la page - Informations du médecin (Français & Arabe)
+    c.setFont("Helvetica-Bold", 14)
+    c.drawString(60, height - 20, "Docteur")
+    c.drawString(30, height - 40, "Foulen BEN FALTEN")
+    c.setFont("Helvetica", 12)
+    c.drawString(50, height - 60, "Médecin (Spécialité)")
+
+    # Informations en arabe
+    c.setFont("Amiri", 12)
+    c.drawString(width - 75, height - 20, get_display(arabic_reshaper.reshape("دكتور")))
+    c.drawString(width - 90, height - 40, get_display(arabic_reshaper.reshape("فلان بن فلتان")))
+    c.drawString(width - 105, height - 60, get_display(arabic_reshaper.reshape("طبيب(التخصص)")))
+
+    # Ligne de séparation
+    c.setStrokeColor(colors.black)
+    c.setLineWidth(1)
+    c.line(32, height - 80, width - 32, height - 80)
+
+    # Titre du certificat
+    c.setFont("Helvetica-Bold", 16)
+    c.drawCentredString(width / 2, height - 100, "Certificat Médical")
+
+    # Date
+    c.setFont("Helvetica", 12)
+
+    # Contenu avec retour à la ligne
+    x = 30
+    y = height - 160
+    max_width = width - 60
+    line_height = 14
+
+    # Diviser le contenu en lignes
+    lines = simpleSplit(contenu, "Helvetica", 12, max_width)
+
+    for line in lines:
+        c.drawString(x, y, line)
+        y -= line_height
+        if y < 50:  # Gérer la pagination
+            c.showPage()
+            c.setFont("Helvetica", 12)
+            y = height - 50
+
+    # Ajouter la signature, la date et la ville en bas
+    c.setFont("Helvetica", 12)
+    c.drawString(30, y - 40, "Signature du médecin :")
+
+
+    c.setFont("Helvetica", 12)
+    c.drawString(35, y - 80, f"Tunis, le {certificat.date.strftime('%d/%m/%Y')}")
+
+    # Bas de page
+    c.setFont("Helvetica", 12)
+    c.drawString(30, 25, f"Adresse: {cabinet_adresse_fr}")
+    c.setFont("Amiri", 12)
+    c.drawRightString(width - 30, 25, get_display(arabic_reshaper.reshape(f"عنوان: {cabinet_adresse_ar}")))
+
+    # Informations de contact
+    c.setFont("Helvetica", 10)
+    c.drawString(30, 10, f"Email : {email}")
+    c.drawRightString(width - 30, 10, f"GSM : {gsm}")
+
+    # Ligne finale
+    c.setStrokeColor(colors.black)
+    c.line(30, 40, width - 30, 40)
+
+    # Finaliser le PDF
+    c.showPage()
+    c.save()
+
+    return response
+
+
 
 
 
