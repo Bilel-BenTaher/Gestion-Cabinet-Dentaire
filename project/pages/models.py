@@ -51,33 +51,81 @@ class CabinetDentaire (models.Model):
 		 return str(self.intitule)
 
 from datetime import timedelta
-from datetime import datetime
+from datetime import datetime,time
+from django.core.exceptions import ValidationError
 
 class Rdv(models.Model):
     id = models.AutoField(primary_key=True)
     id_patient = models.ForeignKey(User, related_name="rdv_patient", on_delete=models.CASCADE, null=True, blank=True)
     fiche = models.ForeignKey('FichePatient', related_name="cons_fact", on_delete=models.CASCADE, null=True, blank=True)
-    
-    date = models.DateField()  # On utilise uniquement la date ici
-    time = models.TimeField(null=True, blank=True)  # Pour stocker l'heure calculée
-    num_rdv = models.IntegerField(default=1)  # Position dans la journée
+    date = models.DateField()  # Date du rendez-vous
+    time = models.TimeField(null=True, blank=True)  # Heure calculée du rendez-vous
+    num_rdv = models.IntegerField(default=1)  # Numéro du rendez-vous dans la journée (1, 2, 3, etc.)
 
     def calculate_time(self):
-        """Calcule l'heure du rendez-vous en fonction du numéro et de la plage horaire."""
-        start_morning = timedelta(hours=9)
-        start_afternoon = timedelta(hours=14)
-        consultation_duration = timedelta(minutes=35)
+        """
+        Cette méthode calcule l'heure du prochain rendez-vous en fonction de l'heure actuelle et du dernier rendez-vous
+        uniquement si le rendez-vous est pour aujourd'hui.
+        """
+        start_time = time(9, 0)  # Le cabinet ouvre à 9h00
+        end_time = time(17, 0)  # Le cabinet ferme à 17h00
+        consultation_duration = timedelta(minutes=35)  # Durée d'une consultation
 
-        # Calculer le temps total écoulé depuis le début de la journée
-        total_time = (self.num_rdv - 1) * consultation_duration
+        now = datetime.now()
+        current_time = now.time()
 
-        # Ajouter le temps calculé à la bonne plage horaire
-        if total_time < timedelta(hours=4):  # Matin (9h-13h)
-            appointment_time = start_morning + total_time
-        else:  # Après-midi (14h-18h)
-            appointment_time = start_afternoon + (total_time - timedelta(hours=4))
+        # Vérifier si la date choisie est aujourd'hui
+        if self.date == now.date():
+            # Récupérer tous les rendez-vous existants pour cette date
+            rdvs_on_date = Rdv.objects.filter(date=self.date).order_by('time')
 
-        return (datetime.min + appointment_time).time()  # Retourner un objet time
+            # Si aucun rendez-vous n'existe pour cette journée
+            if not rdvs_on_date:
+                # Si l'heure actuelle est avant 9h, on retourne 9h
+                if current_time < start_time:
+                    return start_time
+                # Sinon, on retourne l'heure actuelle si c'est dans les heures d'ouverture
+                elif start_time <= current_time < end_time:
+                    return current_time
+                else:
+                    raise ValidationError("Le cabinet est fermé après 17h00. Veuillez choisir une autre date.")
+
+            # Si des rendez-vous existent, récupérer le dernier rendez-vous
+            last_rdv = rdvs_on_date.last()
+            last_rdv_time = datetime.combine(now, last_rdv.time)
+
+            # Si l'heure actuelle est après le dernier rendez-vous
+            if current_time > last_rdv.time:
+                # Si l'heure actuelle est avant 17h, on fixe l'heure du rendez-vous à l'heure actuelle
+                if current_time < end_time:
+                    return current_time
+                else:
+                    raise ValidationError("Le cabinet est fermé après 17h00. Veuillez choisir une autre date.")
+            
+            # Sinon, fixer immédiatement après le dernier rendez-vous
+            next_rdv_time = last_rdv_time + consultation_duration
+            if next_rdv_time.time() >= end_time:
+                raise ValidationError("Le cabinet est fermé après 17h00. Veuillez choisir une autre date.")
+            
+            return next_rdv_time.time()
+
+        else:
+            # Si la date n'est pas aujourd'hui, appliquer la logique par défaut
+            start_morning = timedelta(hours=9)
+            consultation_duration = timedelta(minutes=35)
+
+            # Récupérer les rendez-vous existants pour cette date
+            rdvs_on_date = Rdv.objects.filter(date=self.date).order_by('time')
+
+            if not rdvs_on_date:  # Aucun rendez-vous pour cette journée
+                return (datetime.min + start_morning).time()
+
+            # Si des rendez-vous existent, récupérer le dernier rendez-vous
+            last_rdv = rdvs_on_date.last()
+            last_rdv_time = datetime.combine(datetime.today(), last_rdv.time)
+            next_rdv_time = last_rdv_time + consultation_duration
+
+            return next_rdv_time.time()
 
     def save(self, *args, **kwargs):
         if not self.time:

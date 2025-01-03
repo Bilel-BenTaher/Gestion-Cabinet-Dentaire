@@ -92,19 +92,26 @@ def CountNumeroRdvForDay(rdv_date):
     # Retourner le prochain numéro de rendez-vous (ou 1 si aucun rdv n'existe)
     return (last_rdv or 0) + 1
 
-
+from django.core.exceptions import ValidationError
+from datetime import datetime,time
 def rdv_new(request):
     form = PostForm(request.POST or None)
 
     if form.is_valid():
         rdv = form.save(commit=False)
         rdv.id_patient = request.user  # Associer l'utilisateur connecté
-        rdv.date = form.cleaned_data['date']
+        rdv_date = form.cleaned_data['date']  # Champ date du formulaire
 
-        # Calculer le numéro et sauvegarder
-        rdv.num_rdv = CountNumeroRdvForDay(rdv.date)
-        rdv.save()  # `save` va automatiquement calculer l'heure via `calculate_time`
-        return redirect('rdv_list')
+        # Vérification si l'heure actuelle dépasse 17h00 pour la date du jour
+        if rdv_date == datetime.now().date() and datetime.now().time() >= time(17, 0):
+            form.add_error(None, "Le cabinet est fermé après 17h00. Veuillez choisir une autre date.")
+        else:
+            try:
+                rdv.num_rdv = CountNumeroRdvForDay(rdv_date)
+                rdv.save()  # Sauvegarde du rendez-vous
+                return redirect('rdv_list')
+            except ValidationError as e:
+                form.add_error(None, str(e))  # Ajouter d'autres erreurs si nécessaire
 
     return render(request, 'panel.html', {'form': form})
 

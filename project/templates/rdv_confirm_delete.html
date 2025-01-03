@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}Panel{% endblock %}
-
 {% block content %}
 <center>
-<div class="container" class="form-horizontal">
-<form method="post">{% csrf_token %}
-    <p>Etes-vous sûr de vouloir supprimer ce rendez-vous ?<p>
-    <input type="submit" value="Supprimer" class="btn btn-danger" />
-</form>
+<div class="container" class="form-horizontal" style="margin-top: 50px;">
+    <form method="post">{% csrf_token %}
+        <p>Etes-vous sûr de vouloir supprimer ce rendez-vous ?</p>
+        <input type="submit" value="Supprimer" class="btn btn-danger" />
+        <a href="{% url 'rdv_list' %}" class="btn btn-primary">Annuler</a>
+    </form>
+</div>
 </center>
 {% endblock %}

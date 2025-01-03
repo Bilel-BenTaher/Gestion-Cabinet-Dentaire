@@ -1,13 +1,42 @@
-"{% extends 'base.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 <center>
   <h3>Veuillez choisir une date de rendez-vous</h3>
   <br>
+
+  <!-- Affichage des erreurs non spécifiques (par exemple, erreur après 18h00) -->
+  {% if form.non_field_errors %}
+    <div class="alert alert-danger">
+      <!-- Affichage de chaque erreur sans crochets et guillemets -->
+      {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Formulaire -->
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Ajouter </button>
+    
+    <!-- Affichage de chaque champ et de ses erreurs -->
+    {% for field in form %}
+      <div class="form-group">
+        {{ field.label }}
+        {{ field }}
+        
+        <!-- Affichage des erreurs pour chaque champ -->
+        {% if field.errors %}
+          <div class="alert alert-danger">
+            {% for error in field.errors %}
+              <p>{{ error }}</p> <!-- Affiche les erreurs sans crochets et guillemets -->
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary">Ajouter</button>
   </form>
 </center>
-{% endblock %} "
+{% endblock %}
